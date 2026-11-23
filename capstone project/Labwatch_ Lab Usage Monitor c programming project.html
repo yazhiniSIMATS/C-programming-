@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Labwatch — Lab Usage Monitor</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1c2430;--mute:#6b7280;--line:#e5e1d8;--acc:#0f766e;--accbg:#e6f4f2;--ok:#15803d;--use:#2563eb;--warn:#b45309;--bad:#b91c1c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161c;--card:#18212a;--ink:#e9eef3;--mute:#98a4b2;--line:#273340;--acc:#2dd4bf;--accbg:#14302e;--ok:#4ade80;--use:#60a5fa;--warn:#fbbf24;--bad:#f87171}}
+:root[data-theme="dark"]{--bg:#10161c;--card:#18212a;--ink:#e9eef3;--mute:#98a4b2;--line:#273340;--acc:#2dd4bf;--accbg:#14302e;--ok:#4ade80;--use:#60a5fa;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1040px;margin:auto;padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.brand b{font:700 20px Georgia,"Times New Roman",serif;display:block;line-height:1.1}.brand span{font-size:12px;color:var(--mute)}
+button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 11px}button{cursor:pointer}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+nav button{white-space:nowrap;text-align:left;line-height:1.2}nav small{display:block;font-size:10px;color:var(--mute)}
+nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}nav button.on small{color:#fff;opacity:.85}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) nav button.on,:root:not([data-theme="light"]) .pri{color:#06201d}:root:not([data-theme="light"]) nav button.on small{color:#06201d}}
+:root[data-theme="dark"] nav button.on,:root[data-theme="dark"] .pri{color:#06201d}:root[data-theme="dark"] nav button.on small{color:#06201d}
+.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.hero{background:var(--accbg);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px}
+.tag{font-size:12px;color:var(--acc);font-weight:600;letter-spacing:.03em}
+.hero h1{font:700 24px/1.2 Georgia,serif;margin:4px 0}.hero p{margin:6px 0 10px;color:var(--mute)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.stat b{display:block;font:700 26px Georgia,serif}.stat span{font-size:12px;color:var(--mute)}
+h2{font:700 17px Georgia,serif;margin:0 0 8px}.row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.row:first-of-type{border-top:0}
+.row small{color:var(--mute);display:block}.r{text-align:right;white-space:nowrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;border:1px solid currentColor}
+.s-free{color:var(--ok)}.s-busy{color:var(--use)}.s-idle{color:var(--warn)}.s-faulty{color:var(--bad)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:10px}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mute)}
+.bar{height:7px;background:var(--line);border-radius:4px;overflow:hidden;min-width:60px}.bar i{display:block;height:100%;background:var(--acc)}
+.form{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.form>*{flex:1 1 140px}
+.cols{display:flex;align-items:flex-end;gap:5px;height:120px}.cols div{flex:1;background:var(--acc);border-radius:4px 4px 0 0;min-height:2px;position:relative}.lbl{display:flex;gap:5px;font-size:10px;color:var(--mute)}.lbl span{flex:1;text-align:center}
+pre{margin:0;overflow:auto;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:60vh}
+.hide{display:none}.sub{color:var(--mute);font-size:13px}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <div class="brand"><b>Labwatch</b><span>Lab Usage Monitor</span></div>
+  <button id="theme">Dark mode</button>
+</header>
+<nav id="nav"></nav>
+
+<main id="p-dash">
+  <div class="hero">
+    <div class="tag">CSA0215 · C Programming capstone</div>
+    <h1>Campus Computer Resource and Lab Usage Monitoring System</h1>
+    <p>Watch every lab PC live, track login sessions, get alerts on overloaded or faulty machines and generate usage reports, with no registers or manual checking.</p>
+    <button class="pri" data-go="sessions">Start a session</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="two">
+    <div class="card"><h2>Needs attention right now</h2><div id="attn"></div></div>
+    <div class="card"><h2>Recent sessions</h2><div id="recent"></div></div>
+  </div>
+  <div class="card"><h2>Alert rules</h2><div class="sub">Overload = CPU above threshold · Warning = RAM above threshold · Idle = session with CPU under 10% for 8 checks · Faulty = agent stops reporting.</div>
+  <div class="row"><span>CPU above <b id="rc"></b>%</span><span class="r">Overload alert</span></div><div class="row"><span>RAM above <b id="rr"></b>%</span><span class="r">Memory warning</span></div><div class="row"><span>No heartbeat</span><span class="r">Faulty</span></div></div>
+</main>
+
+<main id="p-agent" class="hide">
+  <div class="card"><h2>Data collection agent</h2><div class="sub">Samples CPU, RAM, disk and network of each PC every 3 seconds (simulated here).</div>
+  <div class="form" style="margin-top:8px"><select id="fl"><option value="-1">All labs</option></select><select id="fs"><option value="all">All status</option><option value="free">Free</option><option value="busy">In use</option><option value="idle">Idle</option><option value="faulty">Faulty</option></select></div>
+  <div class="scroll"><table><thead><tr><th>PC</th><th>Status</th><th>CPU</th><th>RAM</th><th>Disk</th><th>Net</th></tr></thead><tbody id="agt"></tbody></table></div></div>
+</main>
+
+<main id="p-sessions" class="hide">
+  <div class="card"><h2>Log in a student</h2><div class="form"><select id="sp"></select><input id="su" placeholder="Student name" maxlength="30"><button class="pri" id="sgo">Log in</button></div><div class="sub" id="smsg"></div></div>
+  <div class="card"><h2>Active sessions</h2><div id="act"></div></div>
+  <div class="card"><h2>Session log</h2><div class="scroll"><table><thead><tr><th>Time</th><th>Event</th><th>User</th><th>PC</th></tr></thead><tbody id="slog"></tbody></table></div></div>
+</main>
+
+<main id="p-alerts" class="hide">
+  <div class="two">
+    <div class="card"><h2>Thresholds</h2><div class="form"><label class="sub">CPU limit %<input id="tc" type="number" min="50" max="100"></label><label class="sub">RAM limit %<input id="tr" type="number" min="50" max="100"></label></div></div>
+    <div class="card"><h2>Peak hours (PCs in use)</h2><div class="cols" id="peak"></div><div class="lbl" id="peakl"></div></div>
+  </div>
+  <div class="card"><h2>Alerts</h2><div id="alog"></div></div>
+</main>
+
+<main id="p-reports" class="hide">
+  <div class="card"><h2>Daily usage report</h2><div class="scroll"><table><thead><tr><th>Lab</th><th>PCs</th><th>In use</th><th>Avg CPU</th><th>Sessions</th><th>Faults</th><th>Idle PCs</th></tr></thead><tbody id="rep"></tbody></table></div>
+  <p><button id="copy">Copy report</button> <span class="sub" id="cm"></span></p></div>
+  <div class="card"><h2>Utilisation by lab</h2><div id="util"></div></div>
+</main>
+
+<main id="p-c" class="hide">
+  <div class="card"><h2>C program source</h2><div class="sub">The core logic of the system in C: PC records, sampling, login, alert rules and a lab summary.</div><p><button id="cc">Copy code</button> <span class="sub" id="ccm"></span></p>
+<pre id="code">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;time.h&gt;
+
+#define LABS 3
+#define PER 5
+#define CPU_LIMIT 90
+#define RAM_LIMIT 90
+
+typedef struct {
+    char id[8];
+    int lab, cpu, ram, disk, net, inUse, faulty;
+    char user[20];
+} Pc;
+
+const char *status(Pc *p) {
+    if (p-&gt;faulty) return "FAULTY";
+    if (!p-&gt;inUse) return "FREE";
+    return p-&gt;cpu &lt; 10 ? "IDLE" : "IN USE";
+}
+
+void sample(Pc *p) {            /* Module 1: data collection */
+    if (p-&gt;faulty) return;
+    if (p-&gt;inUse) { p-&gt;cpu = rand() % 101; p-&gt;ram = 30 + rand() % 70; p-&gt;net = rand() % 60; }
+    else          { p-&gt;cpu = rand() % 6;   p-&gt;net = rand() % 3; }
+    p-&gt;disk = 30 + rand() % 60;
+}
+
+void login(Pc *p, const char *user) {   /* Module 2: sessions */
+    if (p-&gt;faulty || p-&gt;inUse) { printf("PC %s unavailable\n", p-&gt;id); return; }
+    p-&gt;inUse = 1;
+    strncpy(p-&gt;user, user, sizeof p-&gt;user - 1);
+    printf("LOGIN  %s -&gt; %s\n", user, p-&gt;id);
+}
+
+void checkAlerts(Pc *p) {       /* Module 3: alerts */
+    if (p-&gt;faulty)             printf("ALERT  %s faulty\n", p-&gt;id);
+    else if (p-&gt;cpu &gt; CPU_LIMIT) printf("ALERT  %s CPU overload (%d%%)\n", p-&gt;id, p-&gt;cpu);
+    else if (p-&gt;ram &gt; RAM_LIMIT) printf("WARN   %s high memory (%d%%)\n", p-&gt;id, p-&gt;ram);
+}
+
+int main(void) {
+    Pc pcs[LABS * PER];
+    srand((unsigned)time(NULL));
+    for (int i = 0; i &lt; LABS * PER; i++) {
+        memset(&amp;pcs[i], 0, sizeof(Pc));
+        pcs[i].lab = i / PER;
+        sprintf(pcs[i].id, "%c%02d", 'A' + pcs[i].lab, i % PER + 1);
+        pcs[i].faulty = (rand() % 20 == 0);
+        if (!pcs[i].faulty &amp;&amp; rand() % 2) login(&amp;pcs[i], "Student");
+        sample(&amp;pcs[i]);
+    }
+    printf("\nPC   STATUS  CPU RAM DISK NET\n");
+    for (int i = 0; i &lt; LABS * PER; i++) {
+        Pc *p = &amp;pcs[i];
+        printf("%-4s %-7s %3d %3d %4d %3d\n", p-&gt;id, status(p), p-&gt;cpu, p-&gt;ram, p-&gt;disk, p-&gt;net);
+        checkAlerts(p);
+    }
+    for (int l = 0; l &lt; LABS; l++) {   /* Module 4: report */
+        int used = 0;
+        for (int i = 0; i &lt; LABS * PER; i++)
+            if (pcs[i].lab == l &amp;&amp; pcs[i].inUse) used++;
+        printf("Lab %c: %d/%d in use (%d%%)\n", 'A' + l, used, PER, used * 100 / PER);
+    }
+    return 0;
+}</pre></div>
+</main>
+</div>
+<script>
+const LABS=["Lab A","Lab B","Lab C"],PER=16,NAMES=["Arun","Divya","Karthik","Meena","Ravi","Sana","Vikram","Nisha","Pooja","Hari","Anu","Kiran"];
+const $=id=>document.getElementById(id),R=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),pick=a=>a[Math.floor(Math.random()*a.length)];
+const hh=()=>new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+let T={cpu:90,ram:90},tab="dash",pcs=[],slog=[],alog=[],hours=[2,5,14,26,38,44,30,36,41,33,18,0];
+LABS.forEach((l,li)=>{for(let i=1;i<=PER;i++){const b=Math.random()<.45;pcs.push({id:l.slice(-1)+String(i).padStart(2,"0"),lab:li,user:b?pick(NAMES):null,cpu:b?R(10,80):R(1,6),ram:R(25,70),disk:R(30,80),net:b?R(1,40):R(0,2),faulty:false,over:false,mem:false,sessions:b?1:0,faults:0,low:0})}});
+const st=p=>p.faulty?"faulty":p.user?(p.cpu<10?"idle":"busy"):"free",SL={free:"Free",busy:"In use",idle:"Idle",faulty:"Faulty"};
+const pill=p=>`<span class="pill s-${st(p)}">${SL[st(p)]}</span>`;
+function alert_(type,p,d){alog.unshift({t:hh(),type,pc:p.id,d});alog.length=Math.min(alog.length,40)}
+function ev(e,p){slog.unshift({t:hh(),e,u:p.user,pc:p.id});slog.length=Math.min(slog.length,60)}
+function tick(){pcs.forEach(p=>{
+  if(p.faulty){p.cpu=0;p.net=0;return}
+  if(p.user){p.cpu=clamp(p.cpu+R(-18,18)+(Math.random()<.03?60:0),2,100);p.ram=clamp(p.ram+R(-4,4),15,98);p.net=clamp(p.net+R(-8,8),0,90);
+    if(p.cpu>T.cpu&&!p.over){p.over=true;alert_("Overload",p,"CPU at "+Math.round(p.cpu)+"%")}if(p.cpu<T.cpu-5)p.over=false;
+    if(p.ram>T.ram&&!p.mem){p.mem=true;alert_("Warning",p,"RAM at "+Math.round(p.ram)+"%")}if(p.ram<T.ram-5)p.mem=false;
+    if(Math.random()<.004){p.faulty=true;p.faults++;ev("Logout (fault)",p);p.user=null;alert_("Faulty",p,"Agent stopped reporting");return}
+    if(Math.random()<.05){ev("Logout",p);p.user=null;p.cpu=R(1,5);p.net=R(0,2)}
+  }else if(Math.random()<.05){p.user=pick(NAMES);p.sessions++;p.cpu=R(10,50);ev("Login",p)}
+  else{p.cpu=clamp(p.cpu+R(-1,1),1,6);p.net=clamp(p.net+R(-.5,.5),0,2)}
+  if(st(p)==="idle"){if(++p.low===8)alert_("Idle",p,"Session idle, consider shutdown")}else p.low=0});
+  hours[11]=pcs.filter(p=>p.user).length;render()}
+const cnt=l=>{const a=l==null?pcs:pcs.filter(p=>p.lab===l),c={free:0,busy:0,idle:0,faulty:0};a.forEach(p=>c[st(p)]++);return c};
+const rowH=(a,b,c)=>`<div class="row"><div>${a}<small>${b}</small></div><div class="r">${c}</div></div>`;
+function render(){
+  if(tab==="dash"){const c=cnt();$("stats").innerHTML=[["Total PCs",pcs.length],["In use",c.busy+c.idle],["Free",c.free],["Idle",c.idle],["Faulty",c.faulty],["Alerts",alog.length]].map(s=>`<div class="card stat" style="margin:0"><b>${s[1]}</b><span>${s[0]}</span></div>`).join("");
+    const bad=pcs.filter(p=>p.faulty||p.cpu>T.cpu||st(p)==="idle").slice(0,8);
+    $("attn").innerHTML=bad.map(p=>rowH("PC "+p.id+" · "+LABS[p.lab],p.faulty?"No heartbeat":p.user+" · CPU "+Math.round(p.cpu)+"%",pill(p))).join("")||'<div class="sub">All systems healthy.</div>';
+    $("recent").innerHTML=slog.slice(0,6).map(s=>rowH(s.u+" · "+s.pc,s.t,s.e)).join("")||'<div class="sub">No sessions yet.</div>';
+    $("rc").textContent=T.cpu;$("rr").textContent=T.ram}
+  if(tab==="agent"){const l=+$("fl").value,s=$("fs").value;$("agt").innerHTML=pcs.filter(p=>(l<0||p.lab===l)&&(s==="all"||st(p)===s)).map(p=>`<tr><td>${p.id}</td><td>${pill(p)}</td><td><div class="bar"><i style="width:${p.cpu}%"></i></div>${Math.round(p.cpu)}%</td><td>${Math.round(p.ram)}%</td><td>${Math.round(p.disk)}%</td><td>${Math.round(p.net)} Mbps</td></tr>`).join("")}
+  if(tab==="sessions"){$("act").innerHTML=pcs.filter(p=>p.user).slice(0,12).map(p=>`<div class="row"><div>${p.user}<small>PC ${p.id} · ${LABS[p.lab]}</small></div><div class="r"><button data-out="${p.id}">Log out</button></div></div>`).join("")||'<div class="sub">No active sessions.</div>';
+    document.querySelectorAll("[data-out]").forEach(b=>b.onclick=()=>{const p=pcs.find(x=>x.id===b.dataset.out);ev("Logout",p);p.user=null;p.cpu=R(1,5);render();fillPcs()});
+    $("slog").innerHTML=slog.map(s=>`<tr><td>${s.t}</td><td>${s.e}</td><td>${s.u}</td><td>${s.pc}</td></tr>`).join("")}
+  if(tab==="alerts"){$("alog").innerHTML=alog.map(a=>rowH(a.type+" · PC "+a.pc,a.d,a.t)).join("")||'<div class="sub">No alerts yet. Rules run every few seconds.</div>';
+    const m=Math.max(...hours,1);$("peak").innerHTML=hours.map(h=>`<div style="height:${h/m*100}%" title="${h}"></div>`).join("");$("peakl").innerHTML=["8","9","10","11","12","13","14","15","16","17","18","Now"].map(x=>`<span>${x}</span>`).join("")}
+  if(tab==="reports"){const rows=repRows();$("rep").innerHTML=rows.map(r=>"<tr>"+r.map(x=>`<td>${x}</td>`).join("")+"</tr>").join("");
+    $("util").innerHTML=LABS.map((l,i)=>{const c=cnt(i),u=Math.round((c.busy+c.idle)/PER*100);return `<div class="sub">${l} · ${u}%</div><div class="bar" style="margin-bottom:10px"><i style="width:${u}%"></i></div>`}).join("")}
+}
+function repRows(){return LABS.map((l,i)=>{const a=pcs.filter(p=>p.lab===i),c=cnt(i);return[l,PER,c.busy+c.idle,Math.round(a.reduce((s,p)=>s+p.cpu,0)/PER)+"%",a.reduce((s,p)=>s+p.sessions,0),a.reduce((s,p)=>s+p.faults,0),c.idle]})}
+function fillPcs(){$("sp").innerHTML=pcs.filter(p=>!p.user&&!p.faulty).map(p=>`<option>${p.id}</option>`).join("")}
+async function copy(t,m){let ok=false;try{await navigator.clipboard.writeText(t);ok=true}catch(e){}$(m).textContent=ok?"Copied":"Copy blocked here: select the text instead"}
+$("copy").onclick=()=>copy("Lab, PCs, In use, Avg CPU, Sessions, Faults, Idle\n"+repRows().map(r=>r.join(", ")).join("\n"),"cm");
+$("cc").onclick=()=>copy($("code").textContent,"ccm");
+$("sgo").onclick=()=>{const p=pcs.find(x=>x.id===$("sp").value),u=$("su").value.trim();if(!p||!u){$("smsg").textContent="Pick a free PC and enter a student name.";return}p.user=u;p.sessions++;p.cpu=R(10,40);ev("Login",p);$("su").value="";$("smsg").textContent=u+" logged in on "+p.id;fillPcs();render()};
+$("tc").onchange=e=>{T.cpu=clamp(+e.target.value||90,50,100)};$("tr").onchange=e=>{T.ram=clamp(+e.target.value||90,50,100)};
+$("fl").innerHTML+=LABS.map((l,i)=>`<option value="${i}">${l}</option>`).join("");$("fl").onchange=$("fs").onchange=render;
+$("tc").value=T.cpu;$("tr").value=T.ram;
+const TABS=[["dash","Dashboard",""],["agent","PCs","Module 1"],["sessions","Sessions","Module 2"],["alerts","Alerts","Module 3"],["reports","Reports","Module 4"],["c","C Program","Source"]];
+function nav(){$("nav").innerHTML=TABS.map(t=>`<button class="${tab===t[0]?"on":""}" data-t="${t[0]}">${t[1]}${t[2]?"<small>"+t[2]+"</small>":""}</button>`).join("");
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.t));TABS.forEach(t=>$("p-"+t[0]).classList.toggle("hide",t[0]!==tab));if(tab==="sessions")fillPcs();render()}
+const go=t=>{tab=t;nav();window.scrollTo(0,0)};
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+$("theme").onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue("--bg").trim()==="#10161c";d.dataset.theme=dark?"light":"dark";$("theme").textContent=dark?"Dark mode":"Light mode"};
+for(let i=0;i<6;i++)tick();nav();setInterval(tick,3000);
+</script>
+</body>
+</html>
